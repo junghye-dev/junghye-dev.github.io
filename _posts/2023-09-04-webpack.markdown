@@ -1,0 +1,104 @@
+# webpack
+
+## webpack이란?
+> **웹팩**(Webpack 또는 webpack)은 [오픈 소스](https://ko.wikipedia.org/wiki/%EC%98%A4%ED%94%88_%EC%86%8C%EC%8A%A4_%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4) [자바스크립트](https://ko.wikipedia.org/wiki/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8)(JS) 모듈 번들러이다. 주로 자바스크립트(JS)를 위한 모듈 번들러이지만 호환 플러그인을 포함하는 경우 HTML, CSS, 심지어는 이미지와 같은 프론트엔드 자산들을 변환할 수 있다.웹팩은 의존성이 있는 모듈을 취하여 해당 모듈을 대표하는 정적 자산들을 생성한다. (https://ko.wikipedia.org/wiki/%EC%9B%B9%ED%8C%A9)
+
+JavaScript 모듈 번들러이다. 말 그대로 JavaScript '모듈'을 잘 묶어줘서 하나의 파일로 만들어주는 것이다. 그러나 위 설명처럼 JS 이외에도 Html, css, images 등의 프론트엔드 asset들도 변환해준다. **webpack.config.js**로 구성한다.
+
+JS를 사용하는 프로젝트 규모가 커지면서 그만큼 코드도 방대해졌다. 이에 따라 그 크기도 커지고, 사용되는 변수도 많아졌을 것이다. 하나의 파일로 관리하기에는 그 크기가 컸을 것이고, 여러개의 js 코드로 나누었다고 하더라도 필요한 곳마다 적재 적소에 로드하고 관리하는 것은 쉽지 않은 일이다. 파일마다 존재하는 변수들의 충돌도 있었을 것이다.
+
+이를 해결하기 위해 IIFE(즉시 실행 함수) 방식으로 함수 스코프를 만들어서 사용했는데, 각자의 IIFE 함수 안의 스코프를 하나의 '모듈'처럼 사용했다.(?) 이러한 방식을 사용했던 것이 AMD와 CommonJS. (https://jeonghwan-kim.github.io/series/2019/12/10/frontend-dev-env-webpack-basic.html) `require` 함수를 사용한다. 결국에는 ES2015에서 표준 module 시스템을 발표했으며, 그것이 현재 사용하는 `export`, `import` 구문이다.
+
+그러나 ES2015의 import, export 문은 IE를 포함한 몇 브라우저에서는 지원이 되지 않는다.
+
+이와 같은 브라우저 문제까지 해결하기 위해 생겨난 것이 webpack.
+
+## webpack의 컨셉
+https://nesoy.github.io/articles/2019-02/Webpack 의 내용
+
+### Entry
+
+- 엔트리
+- 의존성 그래프(dependency graph)를 만들기 위해 필요한 시작점
+- 직/간접적으로 의존성을 가진 모듈들을 이해합니다.
+- 여러개의 entry가 존재할 수 있습니다.
+- Default value : `./src/index.js`
+
+```jsx
+module.exports = {
+  entry: './path/to/my/entry/file.js'
+};
+```
+
+### Output
+
+- Webpack이 생성한 bundles의 결과물의 위치를 지정할 수 있습니다.
+- Default value : `./dist/main.js`
+
+```jsx
+const path = require('path');
+
+module.exports = {
+  entry: './path/to/my/entry/file.js',
+  output: {
+    path: path.resolve(__dirname, 'dist'), // bundling 된 파일의 저장 위치
+    filename: 'my-first-webpack.bundle.js' // budling 된 파일의 이름
+  }
+};
+```
+
+### Loader
+
+- Webpack은 오직 Javascript와 Json만 이해할 수 있는 단점이 있습니다.
+- Loader는 다른 Type의 파일을 Webpack이 이해하고 처리가능한 모듈로 변환시키는 작업을 담당합니다.
+
+```jsx
+const path = require('path');
+
+module.exports = {
+  output: {
+    filename: 'my-first-webpack.bundle.js'
+  },
+  module: {
+    rules: [
+      { test: /\.txt$/, use: 'raw-loader' }
+    ]
+  }
+};
+```
+
+### Plugins
+
+- Loader가 변환하는 동안 Plugin은 bundle optimization, asset management and injection of environment과 같은 일을 진행할 수 있습니다.
+
+```jsx
+const HtmlWebpackPlugin = require('html-webpack-plugin'); //installed via npm
+const webpack = require('webpack'); //to access built-in plugins
+
+module.exports = {
+  module: {
+    rules: [
+      { test: /\.txt$/, use: 'raw-loader' }
+    ]
+  },
+  plugins: [
+    new HtmlWebpackPlugin({template: './src/index.html'})
+  ]
+};
+```
+
+### **Mode**
+
+- 다양한 Profile로 지정하여 진행할 수 있습니다.
+- development, production, none
+- Default value : `production`
+
+```jsx
+module.exports = {
+  mode: 'production'
+};
+```
+
+### **Browser Compatibility**
+
+- 웹팩은 ES5를 사용하는 모든 브라우저를 지원합니다. 단 IE8의 아래 버젼은 지원하지 않습니다.
